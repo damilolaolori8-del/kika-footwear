@@ -125,10 +125,6 @@ em {
   align-items: center;
   gap: 8px;
 }
-.announcement-demo {
-  letter-spacing: 0.6px !important;
-  font-weight: 400;
-}
 header {
   position: relative;
   z-index: 30;
@@ -1932,9 +1928,6 @@ details p {
     padding: 0 6%;
     font-size: 7px;
     letter-spacing: 0.7px;
-  }
-  .announcement-demo {
-    display: none !important;
   }
   .header-inner {
     padding-inline: 5%;

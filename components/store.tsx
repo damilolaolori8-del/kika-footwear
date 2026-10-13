@@ -144,7 +144,6 @@ export function Header() {
         <span>
           Keep It Klassic Always <ArrowUpRight size={12} />
         </span>
-        <span className="announcement-demo">Assignment storefront</span>
       </div>
       <header>
         <div className="header-inner">
