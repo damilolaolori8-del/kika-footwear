@@ -50,7 +50,7 @@ export default function Shop() {
         <span className="eyebrow">
           {edit?.caption || "CONSIDER THIS YOUR NEXT OBSESSION"}
         </span>
-        <h1>{edit?.name || "The footwear edit."}</h1>
+        <h1>{edit?.name || "The footwear collection."}</h1>
         <p className="lead">
           {edit?.description ||
             "From campus to the corner office. Find a pair for every side of you."}
@@ -158,7 +158,8 @@ export default function Shop() {
         <div>
           <div className="shop-results">
             <p className="result-count">
-              {list.length} {list.length === 1 ? "pair" : "pairs"} in your edit
+              {list.length} {list.length === 1 ? "pair" : "pairs"} matching your
+              filters
             </p>
             <span>Prices in NGN · Indicative catalogue</span>
           </div>

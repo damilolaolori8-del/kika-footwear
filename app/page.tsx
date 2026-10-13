@@ -2,7 +2,7 @@ import Photograph from "@/components/photograph";
 import Link from "next/link";
 import { ArrowUpRight, ArrowRight, Sparkles } from "lucide-react";
 import { ProductCard, Benefits, SocialLinks } from "@/components/store";
-import { products } from "@/lib/products";
+import { products, featuredProductIds } from "@/lib/products";
 export default function Home() {
   return (
     <>
@@ -33,7 +33,7 @@ export default function Home() {
           </div>
           <div className="hero-note">
             <span>KEEP IT KLASSIC ALWAYS</span>
-            <span>01 / THE NEW EDIT</span>
+            <span>01 / NEW ARRIVALS</span>
           </div>
         </div>
         <div className="hero-visual">
@@ -42,18 +42,15 @@ export default function Home() {
           </span>
           <div className="hero-photo-frame">
             <Photograph
-              src="/products/nike-af1-white.png"
+              src="/products/adidas-gazelle.png"
               loading="eager"
               sizes="(max-width: 600px) 70vw, 45vw"
-              alt="Nike Air Force 1 Triple White — product reference"
+              alt="Adidas Gazelle Tan / White — reference image"
             />
             <div className="hero-product-label">
               <span>THE DAILY OBSESSION</span>
               <b>Fresh pair. Fresh perspective.</b>
-              <Link
-                href="/shop?collection=icons"
-                aria-label="Explore the icon edit"
-              >
+              <Link href="/shop?collection=icons" aria-label="Explore sneakers">
                 <ArrowUpRight size={20} />
               </Link>
             </div>
@@ -66,9 +63,7 @@ export default function Home() {
               COMES STANDARD.
             </span>
           </div>
-          <span className="hero-visual-note">
-            STYLE REFERENCE / THE ICON EDIT
-          </span>
+          <span className="hero-visual-note">STYLE REFERENCE / SNEAKERS</span>
         </div>
       </section>
       <div className="brand-strip">
@@ -97,24 +92,24 @@ export default function Home() {
         <div className="category-grid">
           {[
             {
-              title: "The icon edit",
+              title: "Sneakers",
               label: "BIG BRAND ENERGY",
               collection: "icons",
-              image: "/products/black-sneakers.jpg",
+              image: "/products/adidas-samba.jpg",
               note: "Original-brand favourites",
             },
             {
-              title: "Campus rotation",
+              title: "Campus",
               label: "LECTURE. LINK-UP. REPEAT.",
               collection: "campus",
-              image: "/products/campus-court.png",
+              image: "/products/retro-gum-sneakers.png",
               note: "Independent-label picks from ₦25,000",
             },
             {
-              title: "The 9–5 edit",
+              title: "9–5",
               label: "CLOCK IN. STAND OUT.",
               collection: "corporate",
-              image: "/products/smart-shoes.jpg",
+              image: "/products/penny-loafers.png",
               note: "Smart doesn’t have to mean boring",
             },
           ].map((c) => (
@@ -139,7 +134,7 @@ export default function Home() {
           ))}
         </div>
         <div className="category-pills">
-          {["Women", "Unisex", "Loafers", "Flats", "Sneakers", "Boots"].map(
+          {["Women", "Unisex", "Loafers", "Flats", "Sneakers", "Clogs"].map(
             (c) => (
               <Link key={c} href={`/shop?category=${encodeURIComponent(c)}`}>
                 {c}
@@ -155,14 +150,16 @@ export default function Home() {
             <span className="eyebrow">CURRENT OBSESSIONS</span>
             <h2>Your rotation called.</h2>
           </div>
-          <Link href="/shop?collection=icons" className="text-link">
-            Meet the icons <ArrowUpRight size={17} />
+          <Link href="/shop" className="text-link">
+            Shop all shoes <ArrowUpRight size={17} />
           </Link>
         </div>
         <div className="product-grid">
-          {products.slice(0, 4).map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
+          {featuredProductIds
+            .map((id) => products.find((p) => p.id === id)!)
+            .map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
         </div>
         <p className="catalogue-note">
           Indicative prices for the assignment. Exact stock, imagery and
@@ -183,11 +180,11 @@ export default function Home() {
             Explore independent-label sneakers, flats and smart shoes.
           </p>
           <Link href="/shop?collection=campus" className="button dark">
-            Shop the campus rotation <ArrowUpRight size={18} />
+            Shop campus shoes <ArrowUpRight size={18} />
           </Link>
         </div>
         <div className="campus-price">
-          <span>THE CAMPUS EDIT</span>
+          <span>CAMPUS</span>
           <b>
             ₦25k<span>—</span>₦55k
           </b>
@@ -202,19 +199,19 @@ export default function Home() {
       <section className="section smart-section">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">SMART SHOES. ZERO HEELS REQUIRED.</span>
+            <span className="eyebrow">LOAFERS. FLATS. ALL ATTITUDE.</span>
             <h2>For the days you mean business.</h2>
           </div>
           <Link href="/shop?collection=corporate" className="text-link">
-            Shop the 9–5 edit <ArrowUpRight size={17} />
+            Shop 9–5 <ArrowUpRight size={17} />
           </Link>
         </div>
         <div className="product-grid">
           {[
-            "mary-jane-flats",
-            "women-loafers",
-            "unisex-derby",
-            "mens-oxford",
+            "square-toe-flats",
+            "horsebit-loafers",
+            "pointed-slingback-flats",
+            "quilted-bow-flats",
           ].map((id) => (
             <ProductCard
               key={id}
@@ -227,7 +224,7 @@ export default function Home() {
         <div className="editorial-image">
           <Photograph
             src="/products/boots.jpg"
-            alt="Boot style reference for the KIKA edit"
+            alt="Boot style reference for the KIKA collection"
           />
           <span>LAGOS ROOTS / GLOBAL TASTE</span>
         </div>

@@ -5,17 +5,15 @@ test("campus and corporate collections include affordable flats and unisex smart
 }) => {
   await page.goto("/shop?collection=campus");
   await expect(
-    page.getByRole("heading", { name: "Campus rotation", exact: true }),
+    page.getByRole("heading", { name: "Campus", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".product-card")).toHaveCount(8);
+  await expect(page.locator(".product-card")).toHaveCount(10);
   await expect(
-    page
-      .locator(".product-card")
-      .filter({ hasText: "Everyday Mary Jane Flats" }),
+    page.locator(".product-card").filter({ hasText: "Mesh Mary Janes" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "The 9–5 edit", exact: true }).click();
+  await page.getByRole("button", { name: "9–5", exact: true }).click();
   await expect(
-    page.locator(".product-card").filter({ hasText: "Everyday Derby Shoes" }),
+    page.locator(".product-card").filter({ hasText: "Speedcat Ballet" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Everything", exact: true }).click();
   await page.getByLabel("Search shoes").fill("timberland");
@@ -23,7 +21,12 @@ test("campus and corporate collections include affordable flats and unisex smart
   await expect(page.locator(".product-meta").first()).toContainText("₦350,000");
   await page.getByLabel("Search shoes").fill("");
   await page.getByLabel("Maximum price").fill("35000");
-  await expect(page.locator(".product-card")).toHaveCount(4);
+  await expect(page.locator(".product-card")).not.toHaveCount(0);
+  const displayedPrices = await page
+    .locator(".product-meta > span:last-child")
+    .allTextContents();
+  for (const price of displayedPrices)
+    expect(Number(price.replace(/[^0-9]/g, ""))).toBeLessThanOrEqual(35000);
 });
 
 test("cart validates size, persists quantities, and checkout uses naira totals", async ({
@@ -182,10 +185,10 @@ test("mobile layouts have no horizontal overflow and menu reaches collections an
   ).toBeVisible();
   await page
     .getByRole("navigation", { name: "Mobile navigation" })
-    .getByRole("link", { name: "Campus rotation" })
+    .getByRole("link", { name: "Campus" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Campus rotation", exact: true }),
+    page.getByRole("heading", { name: "Campus", exact: true }),
   ).toBeVisible();
 });
 
@@ -219,9 +222,85 @@ test("all catalogue images resolve locally and all main pages render without bro
       elements.map((e) => (e as HTMLImageElement).getAttribute("src")!),
     );
   for (const src of [...new Set(images)]) {
+    expect(src).not.toContain("footwear-fallback");
     const response = await page.request.get(src);
     expect(response.status(), src).toBe(200);
     expect(response.headers()["content-type"], src).toContain("image/");
   }
   expect(errors).toEqual([]);
+});
+
+test("no heels remain, old heel pages are unavailable, and trend styles are present", async ({
+  page,
+}) => {
+  await page.goto("/shop");
+  await expect(
+    page.locator(".filters").getByRole("button", { name: /heels/i }),
+  ).toHaveCount(0);
+  await expect(
+    page
+      .locator(".product-card")
+      .filter({ hasText: /heels|Oxford|Everyday Derby/i }),
+  ).toHaveCount(0);
+  for (const name of [
+    "Samba OG",
+    "Gazelle",
+    "530",
+    "9060",
+    "Mexico 66",
+    "Speedcat Ballet",
+    "Boston",
+    "Classic Clog",
+    "Dunk Low",
+    "Chuck 70",
+    "Palermo",
+    "GEL-1130",
+    "Leopard Mary Janes",
+    "Gingham Mary Janes",
+    "Cap-Toe Ballet Flats",
+    "Metallic Ballet Flats",
+    "Pointed Slingback Flats",
+    "Quilted Bow Flats",
+    "Square-Toe Bar Flats",
+    "Horsebit Loafers",
+  ]) {
+    await expect(
+      page
+        .locator(".product-card")
+        .filter({ has: page.getByRole("link", { name, exact: true }) }),
+    ).toHaveCount(1);
+  }
+  expect((await page.goto("/product/occasion-heels"))?.status()).toBe(404);
+  expect((await page.request.get("/products/heels.jpg")).status()).toBe(404);
+  await page.goto("/");
+  const titles = await page.locator(".category-card h3").allTextContents();
+  expect(titles).toEqual(["Sneakers", "Campus", "9–5"]);
+  await expect(page.locator("main")).not.toContainText(/\bedit\b/i);
+});
+
+test("retired heels are removed from saved carts and wishlists", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      "kika-store",
+      JSON.stringify({
+        cart: [
+          { id: "occasion-heels", size: "39", qty: 1 },
+          { id: "penny-loafers", size: "42", qty: 1 },
+        ],
+        wishlist: ["occasion-heels", "penny-loafers"],
+      }),
+    ),
+  );
+  await page.goto("/cart");
+  await expect(page.locator(".cart-line")).toHaveCount(1);
+  await expect(page.locator(".cart-line")).toContainText(
+    "Chunky Penny Loafers",
+  );
+  await page.goto("/wishlist");
+  await expect(page.locator(".product-card")).toHaveCount(1);
+  await expect(page.locator(".product-card")).toContainText(
+    "Chunky Penny Loafers",
+  );
 });

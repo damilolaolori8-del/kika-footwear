@@ -152,8 +152,8 @@ export function Header() {
           <nav className="desktop-nav" aria-label="Main navigation">
             <Link href="/shop">Shop all</Link>
             <Link href="/shop?collection=icons">The icons</Link>
-            <Link href="/shop?collection=campus">Campus rotation</Link>
-            <Link href="/shop?collection=corporate">The 9–5 edit</Link>
+            <Link href="/shop?collection=campus">Campus</Link>
+            <Link href="/shop?collection=corporate">9–5</Link>
           </nav>
           <div className="header-actions">
             <Link href="/shop" aria-label="Search products">
@@ -198,8 +198,8 @@ export function Header() {
           >
             {[
               { name: "Shop all", href: "/shop" },
-              { name: "Campus rotation", href: "/shop?collection=campus" },
-              { name: "The 9–5 edit", href: "/shop?collection=corporate" },
+              { name: "Campus", href: "/shop?collection=campus" },
+              { name: "9–5", href: "/shop?collection=corporate" },
               ...categories.map((name) => ({
                 name,
                 href: `/shop?category=${encodeURIComponent(name)}`,
@@ -254,9 +254,9 @@ export function Footer() {
         <div>
           <h4>Find your rotation</h4>
           <Link href="/shop">Shop everything</Link>
-          <Link href="/shop?collection=icons">The icon edit</Link>
-          <Link href="/shop?collection=campus">Campus rotation</Link>
-          <Link href="/shop?collection=corporate">The 9–5 edit</Link>
+          <Link href="/shop?collection=icons">Sneakers</Link>
+          <Link href="/shop?collection=campus">Campus</Link>
+          <Link href="/shop?collection=corporate">9–5</Link>
           <Link href="/shop?category=Flats">Flats & smart shoes</Link>
         </div>
         <div>
@@ -359,7 +359,9 @@ export function Benefits() {
         <ShieldCheck />
         <span>
           <b>Great brands. Personal style.</b>
-          <small>Original-brand edit + affordable independent labels</small>
+          <small>
+            Original-brand collection + affordable independent labels
+          </small>
         </span>
       </div>
     </div>

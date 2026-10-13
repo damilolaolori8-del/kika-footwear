@@ -51,7 +51,7 @@ export default function UtilityPage({ page }: { page: string }) {
             <h2>A little room for favourites.</h2>
             <p>Tap the heart on a pair you love to save it here.</p>
             <Link className="button dark" href="/shop">
-              Explore the edit <ArrowRight size={16} />
+              Explore the shoes <ArrowRight size={16} />
             </Link>
           </div>
         )}
@@ -302,13 +302,13 @@ export default function UtilityPage({ page }: { page: string }) {
               Great footwear.
             </h1>
             <p className="lead">
-              Lagos roots. Global taste. A footwear edit made for every side of
-              you.
+              Lagos roots. Global taste. A footwear collection made for every
+              side of you.
             </p>
             <p>
               KIKA is an independent online footwear retailer based in Lagos,
-              Nigeria. Our original-brand edit celebrates Nike, Adidas, PUMA,
-              Timberland and Dr. Martens, alongside an affordable
+              Nigeria. Our original-brand collection celebrates Nike, Adidas,
+              PUMA, Timberland and Dr. Martens, alongside an affordable
               independent-label collection.
             </p>
             <p>
