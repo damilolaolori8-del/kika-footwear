@@ -12,5 +12,5 @@ export default async function Page({
   const { id } = await params;
   const product = products.find((p) => p.id === id);
   if (!product) notFound();
-  return <ProductDetail product={product} />;
+  return <ProductDetail key={id} product={product} />;
 }

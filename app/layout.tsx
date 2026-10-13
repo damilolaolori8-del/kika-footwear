@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/space-grotesk";
 import "./globals.css";
+import { AccountProvider } from "@/components/account";
 import { StoreProvider, Header, Footer } from "@/components/store";
 export const metadata: Metadata = {
-  title: "KIKA Footwear — Find your next step",
+  title: "KIKA Footwear — Keep It Klassic Always",
   description:
-    "Discover a considered edit of footwear from the brands you love. Sneakers, heels, boots and everyday favourites.",
+    "Lagos footwear retailer. Original-brand icons, student-friendly campus pairs and smart shoes for your 9–5. Keep It Klassic Always.",
 };
 export default function RootLayout({
   children,
@@ -14,11 +17,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <StoreProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-        </StoreProvider>
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
+        <AccountProvider>
+          <StoreProvider>
+            <Header />
+            <main id="main-content">{children}</main>
+            <Footer />
+          </StoreProvider>
+        </AccountProvider>
       </body>
     </html>
   );

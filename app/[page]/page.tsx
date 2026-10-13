@@ -5,6 +5,7 @@ const pages = [
   "checkout",
   "wishlist",
   "login",
+  "signin",
   "signup",
   "account",
   "about",
@@ -22,5 +23,5 @@ export default async function Page({
 }) {
   const { page } = await params;
   if (!pages.includes(page)) notFound();
-  return <UtilityPage page={page} />;
+  return <UtilityPage key={page} page={page} />;
 }

@@ -21,18 +21,27 @@ import {
   ShieldCheck,
   Minus,
   Plus,
+  Phone,
+  MapPin,
 } from "lucide-react";
-import { products, Product, photo, money, categories } from "@/lib/products";
+import {
+  products,
+  Product,
+  photo,
+  money,
+  categories,
+  FREE_SHIPPING_MINIMUM,
+} from "@/lib/products";
+import { contact, socials } from "@/lib/contact";
+import { useAuth } from "./account";
 type Line = { id: string; size: string; qty: number };
-type Profile = { name: string; email: string };
 type State = {
   cart: Line[];
   wishlist: string[];
-  profile: Profile | null;
+  ready: boolean;
   add: (id: string, size: string) => void;
   quantity: (id: string, size: string, qty: number) => void;
   wish: (id: string) => void;
-  login: (p: Profile | null) => void;
   clear: () => void;
 };
 const Context = createContext<State | null>(null);
@@ -40,48 +49,71 @@ export const useStore = () => useContext(Context)!;
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Line[]>([]),
     [wishlist, setWish] = useState<string[]>([]),
-    [profile, setProfile] = useState<Profile | null>(null),
     [ready, setReady] = useState(false);
   useEffect(() => {
     try {
       const s = JSON.parse(localStorage.getItem("kika-store") || "{}");
-      setCart(s.cart || []);
-      setWish(s.wishlist || []);
-      setProfile(s.profile || null);
+      setCart(
+        Array.isArray(s.cart)
+          ? s.cart.filter(
+              (l: Line) =>
+                l &&
+                products.some(
+                  (p) => p.id === l.id && p.sizes.includes(l.size),
+                ) &&
+                Number.isInteger(l.qty) &&
+                l.qty > 0 &&
+                l.qty <= 99,
+            )
+          : [],
+      );
+      setWish(
+        Array.isArray(s.wishlist)
+          ? s.wishlist.filter((id: string) => products.some((p) => p.id === id))
+          : [],
+      );
     } catch {}
     setReady(true);
   }, []);
   useEffect(() => {
     if (ready)
-      localStorage.setItem(
-        "kika-store",
-        JSON.stringify({ cart, wishlist, profile }),
-      );
-  }, [cart, wishlist, profile, ready]);
+      try {
+        localStorage.setItem("kika-store", JSON.stringify({ cart, wishlist }));
+      } catch {}
+  }, [cart, wishlist, ready]);
   return (
     <Context.Provider
       value={{
         cart,
         wishlist,
-        profile,
+        ready,
         add: (id, size) =>
           setCart((c) => {
+            if (!products.some((p) => p.id === id && p.sizes.includes(size)))
+              return c;
             const item = c.find((l) => l.id === id && l.size === size);
             return item
-              ? c.map((l) => (l === item ? { ...l, qty: l.qty + 1 } : l))
+              ? c.map((l) =>
+                  l === item ? { ...l, qty: Math.min(99, l.qty + 1) } : l,
+                )
               : [...c, { id, size, qty: 1 }];
           }),
         quantity: (id, size, qty) =>
           setCart((c) =>
             c
-              .map((l) => (l.id === id && l.size === size ? { ...l, qty } : l))
+              .map((l) =>
+                l.id === id && l.size === size
+                  ? { ...l, qty: Math.min(99, Math.max(0, Math.floor(qty))) }
+                  : l,
+              )
               .filter((l) => l.qty > 0),
           ),
-        wish: (id) =>
-          setWish((w) =>
-            w.includes(id) ? w.filter((v) => v !== id) : [...w, id],
-          ),
-        login: setProfile,
+        wish: (id) => {
+          if (products.some((p) => p.id === id))
+            setWish((w) =>
+              w.includes(id) ? w.filter((v) => v !== id) : [...w, id],
+            );
+        },
         clear: () => setCart([]),
       }}
     >
@@ -89,36 +121,50 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     </Context.Provider>
   );
 }
+export function Logo() {
+  return (
+    <Link href="/" className="logo" aria-label="KIKA Footwear home">
+      <img
+        src="/brand/kika-logo.png"
+        alt="KIKA — Keep It Klassic Always"
+        width={1942}
+        height={809}
+      />
+    </Link>
+  );
+}
 export function Header() {
   const { cart, wishlist } = useStore();
+  const { profile } = useAuth();
   const [open, setOpen] = useState(false);
   return (
     <>
       <div className="announcement">
-        A little more sole. A little more you.{" "}
+        <span>LAGOS ROOTS. GLOBAL TASTE.</span>
         <span>
-          Free shipping on orders $150+ <ArrowUpRight size={12} />
+          Keep It Klassic Always <ArrowUpRight size={12} />
         </span>
+        <span className="announcement-demo">Assignment storefront</span>
       </div>
       <header>
         <div className="header-inner">
-          <Link href="/" className="logo">
-            KIKA<span>FOOTWEAR</span>
-          </Link>
-          <nav className="desktop-nav">
+          <Logo />
+          <nav className="desktop-nav" aria-label="Main navigation">
             <Link href="/shop">Shop all</Link>
-            <Link href="/shop?category=Men">Men</Link>
-            <Link href="/shop?category=Women">Women</Link>
-            <Link href="/shop?category=Sneakers">Sneakers</Link>
-            <Link href="/shop?sort=new">
-              New arrivals <i />
-            </Link>
+            <Link href="/shop?collection=icons">The icons</Link>
+            <Link href="/shop?collection=campus">Campus rotation</Link>
+            <Link href="/shop?collection=corporate">The 9–5 edit</Link>
           </nav>
           <div className="header-actions">
             <Link href="/shop" aria-label="Search products">
               <Search />
             </Link>
-            <Link href="/account" aria-label="Account">
+            <Link
+              href="/account"
+              aria-label={
+                profile ? "Your account" : "Sign in or create an account"
+              }
+            >
               <UserRound />
             </Link>
             <Link href="/wishlist" aria-label="Wishlist" className="count-icon">
@@ -135,22 +181,36 @@ export function Header() {
             </Link>
             <button
               className="mobile-toggle"
-              onClick={() => setOpen(!open)}
               aria-label="Toggle menu"
+              aria-expanded={open}
+              aria-controls="mobile-navigation"
+              onClick={() => setOpen(!open)}
             >
               {open ? <X /> : <Menu />}
             </button>
           </div>
         </div>
         {open && (
-          <nav className="mobile-nav">
-            {["Shop all", ...categories].map((c) => (
-              <Link
-                key={c}
-                onClick={() => setOpen(false)}
-                href={c === "Shop all" ? "/shop" : `/shop?category=${c}`}
-              >
-                {c}
+          <nav
+            id="mobile-navigation"
+            className="mobile-nav"
+            aria-label="Mobile navigation"
+          >
+            {[
+              { name: "Shop all", href: "/shop" },
+              { name: "Campus rotation", href: "/shop?collection=campus" },
+              { name: "The 9–5 edit", href: "/shop?collection=corporate" },
+              ...categories.map((name) => ({
+                name,
+                href: `/shop?category=${encodeURIComponent(name)}`,
+              })),
+              {
+                name: profile ? "Your account" : "Sign in / Create account",
+                href: "/account",
+              },
+            ].map((c) => (
+              <Link key={c.name} href={c.href} onClick={() => setOpen(false)}>
+                {c.name}
                 <ArrowUpRight size={16} />
               </Link>
             ))}
@@ -160,52 +220,75 @@ export function Header() {
     </>
   );
 }
+export function SocialLinks() {
+  return (
+    <div className="social-links">
+      {socials.map((s) => (
+        <a
+          key={s.name}
+          href={s.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${s.name} — ${s.handle} (opens in new tab)`}
+        >
+          {s.name}
+          <ArrowUpRight size={13} />
+        </a>
+      ))}
+    </div>
+  );
+}
 export function Footer() {
   return (
     <footer>
       <div className="footer-top">
-        <div>
-          <Link href="/" className="logo">
-            KIKA<span>FOOTWEAR</span>
-          </Link>
+        <div className="footer-brand">
+          <Logo />
           <p>
-            Great brands. Good taste.
+            Original-brand icons. Everyday possibilities.
             <br />
-            Your next favourite pair starts here.
+            From lectures to late nights. From desk to dinner.
           </p>
+          <p className="footer-tagline">KEEP IT KLASSIC ALWAYS.</p>
         </div>
         <div>
-          <h4>Explore</h4>
-          <Link href="/shop">Shop all</Link>
-          <Link href="/shop?category=Men">Men’s footwear</Link>
-          <Link href="/shop?category=Women">Women’s footwear</Link>
-          <Link href="/wishlist">Your wishlist</Link>
+          <h4>Find your rotation</h4>
+          <Link href="/shop">Shop everything</Link>
+          <Link href="/shop?collection=icons">The icon edit</Link>
+          <Link href="/shop?collection=campus">Campus rotation</Link>
+          <Link href="/shop?collection=corporate">The 9–5 edit</Link>
+          <Link href="/shop?category=Flats">Flats & smart shoes</Link>
         </div>
         <div>
-          <h4>We’re here to help</h4>
-          <Link href="/contact">Contact us</Link>
+          <h4>Good to know</h4>
+          <Link href="/about">About KIKA</Link>
           <Link href="/shipping">Shipping & returns</Link>
           <Link href="/faq">FAQs</Link>
-          <Link href="/account">My account</Link>
+          <Link href="/account">Your account</Link>
+          <Link href="/contact">Contact us</Link>
         </div>
         <div>
-          <h4>The KIKA edit</h4>
-          <p>
-            A considered collection of shoes
-            <br />
-            from the brands you love.
+          <h4>Let’s connect</h4>
+          <a
+            className="contact-link"
+            href={`tel:${contact.internationalPhone}`}
+          >
+            <Phone size={14} />
+            {contact.phone}
+          </a>
+          <p className="contact-link">
+            <MapPin size={14} />
+            {contact.location}
           </p>
-          <Link href="/about">
-            Get to know us <ArrowUpRight size={14} />
-          </Link>
+          <SocialLinks />
         </div>
       </div>
       <div className="footer-bottom">
+        <span>© {new Date().getFullYear()} KIKA Footwear</span>
         <span>
-          © {new Date().getFullYear()} KIKA Footwear. All rights reserved.
+          Independent retailer · Assignment demo · Prices are indicative
         </span>
-        <span>Independent footwear retailer · Demo storefront</span>
-        <span>Instagram ↗ &nbsp; Pinterest ↗</span>
+        <span>Step into your style. ↗</span>
       </div>
     </footer>
   );
@@ -218,14 +301,15 @@ export function ProductCard({ product: p }: { product: Product }) {
         <Link href={`/product/${p.id}`}>
           <Photograph
             src={photo(p.image)}
-            alt={`${p.brand} ${p.name}`}
+            alt={`${p.brand} ${p.name} — style reference`}
             loading="lazy"
           />
         </Link>
         {p.tag && <span className="tag">{p.tag}</span>}
         <button
           className={`wish-button ${wishlist.includes(p.id) ? "selected" : ""}`}
-          aria-label={`Toggle ${p.name} in wishlist`}
+          aria-label={`Toggle ${p.name} ${p.color} in wishlist`}
+          aria-pressed={wishlist.includes(p.id)}
           onClick={() => wish(p.id)}
         >
           <Heart
@@ -233,6 +317,13 @@ export function ProductCard({ product: p }: { product: Product }) {
             fill={wishlist.includes(p.id) ? "currentColor" : "none"}
           />
         </button>
+        {p.imageNote && (
+          <span className="image-caption">
+            {p.imageNote.startsWith("Generated")
+              ? "CONCEPT IMAGE"
+              : "REFERENCE IMAGE"}
+          </span>
+        )}
       </div>
       <div className="product-meta">
         <span>{p.brand}</span>
@@ -242,7 +333,7 @@ export function ProductCard({ product: p }: { product: Product }) {
         {p.name}
       </Link>
       <p>
-        {p.gender}’s {p.category.toLowerCase()} · {p.color}
+        {p.gender} · {p.color}
       </p>
     </article>
   );
@@ -253,22 +344,22 @@ export function Benefits() {
       <div>
         <Truck />
         <span>
-          <b>Good things, delivered</b>
-          <small>Free shipping on orders $150+</small>
+          <b>Lagos, with love</b>
+          <small>Demo free delivery from {money(FREE_SHIPPING_MINIMUM)}</small>
         </span>
       </div>
       <div>
         <RotateCcw />
         <span>
-          <b>Find your perfect fit</b>
-          <small>Easy returns within 30 days</small>
+          <b>Your fit comes first</b>
+          <small>EU sizes · A considered selection</small>
         </span>
       </div>
       <div>
         <ShieldCheck />
         <span>
-          <b>Brands you can trust</b>
-          <small>A curated edit of authentic footwear</small>
+          <b>Great brands. Personal style.</b>
+          <small>Original-brand edit + affordable independent labels</small>
         </span>
       </div>
     </div>
@@ -292,6 +383,7 @@ export function Quantity({
       <span>{value}</span>
       <button
         aria-label="Increase quantity"
+        disabled={value >= 99}
         onClick={() => onChange(value + 1)}
       >
         <Plus size={14} />

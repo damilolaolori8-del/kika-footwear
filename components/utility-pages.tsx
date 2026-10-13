@@ -4,19 +4,27 @@ import Link from "next/link";
 import { useState, FormEvent } from "react";
 import { ArrowRight, ShoppingBag, CheckCircle2, Heart } from "lucide-react";
 import { useStore, ProductCard, Quantity } from "./store";
-import { products, photo, money } from "@/lib/products";
+import AccountPage from "./account";
+import { contact } from "@/lib/contact";
+import { SocialLinks } from "./store";
+import { Phone, MapPin } from "lucide-react";
+import {
+  products,
+  photo,
+  money,
+  FREE_SHIPPING_MINIMUM,
+  SHIPPING_COST,
+} from "@/lib/products";
 export default function UtilityPage({ page }: { page: string }) {
   const store = useStore();
   const [done, setDone] = useState(false),
     [order, setOrder] = useState(""),
-    [email, setEmail] = useState(""),
-    [name, setName] = useState(""),
     [error, setError] = useState("");
   const subtotal = store.cart.reduce(
       (s, l) => s + (products.find((p) => p.id === l.id)?.price || 0) * l.qty,
       0,
     ),
-    shipping = subtotal >= 150 ? 0 : 10;
+    shipping = subtotal >= FREE_SHIPPING_MINIMUM ? 0 : SHIPPING_COST;
   function checkout(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!store.cart.length) return;
@@ -179,14 +187,11 @@ export default function UtilityPage({ page }: { page: string }) {
               </div>
               <label>
                 Country
-                <select required defaultValue="">
+                <select required defaultValue="Nigeria">
                   <option value="" disabled>
                     Select country
                   </option>
                   <option>Nigeria</option>
-                  <option>United States</option>
-                  <option>United Kingdom</option>
-                  <option>Canada</option>
                 </select>
               </label>
               <div className="summary">
@@ -211,101 +216,18 @@ export default function UtilityPage({ page }: { page: string }) {
         )}
       </div>
     );
-  if (["account", "login", "signup"].includes(page)) {
-    if (page === "account" && store.profile)
-      return (
-        <div className="page-shell narrow">
-          <span className="eyebrow">YOUR KIKA SPACE</span>
-          <h1>Hello, {store.profile.name}.</h1>
-          <div className="notice">
-            Demo profile stored in this browser. This is not a secure
-            authenticated account.
-          </div>
-          <div className="account-card">
-            <h2>Your profile</h2>
-            <p>{store.profile.email}</p>
-            <Link className="text-link" href="/wishlist">
-              View your wishlist <ArrowRight size={16} />
-            </Link>
-            <p>
-              Order history and account management require an authentication and
-              order backend.
-            </p>
-            <button className="button dark" onClick={() => store.login(null)}>
-              Sign out of demo
-            </button>
-          </div>
-        </div>
-      );
+  if (["account", "login", "signup", "signin"].includes(page))
     return (
-      <div className="page-shell narrow auth">
-        <span className="eyebrow">WELCOME TO KIKA</span>
-        <h1>
-          {page === "signup" ? "Make yourself at home." : "Welcome back."}
-        </h1>
-        <div className="notice">
-          Demo account experience only. No passwords are collected and no
-          identity is verified.
-        </div>
-        <form
-          className="form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            store.login({ name: name.trim() || email.split("@")[0], email });
-            setDone(true);
-          }}
-        >
-          {done ? (
-            <div role="status">
-              <h2>Your demo profile is ready.</h2>
-              <Link href="/account" className="button dark">
-                Visit your account
-              </Link>
-            </div>
-          ) : (
-            <>
-              <label>
-                Your name
-                <input
-                  value={name}
-                  required={page === "signup"}
-                  onChange={(e) => setName(e.target.value)}
-                  autoComplete="name"
-                />
-              </label>
-              <label>
-                Email address
-                <input
-                  required
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                />
-              </label>
-              <button type="submit" className="button dark">
-                {page === "signup"
-                  ? "Create demo profile"
-                  : "Enter demo account"}{" "}
-                <ArrowRight size={18} />
-              </button>
-              <p>
-                {page === "signup"
-                  ? "Already have a profile?"
-                  : "New around here?"}{" "}
-                <Link
-                  className="text-link"
-                  href={page === "signup" ? "/login" : "/signup"}
-                >
-                  {page === "signup" ? "Log in" : "Sign up"}
-                </Link>
-              </p>
-            </>
-          )}
-        </form>
-      </div>
+      <AccountPage
+        mode={
+          page === "signup"
+            ? "signup"
+            : page === "account"
+              ? "account"
+              : "login"
+        }
+      />
     );
-  }
   if (page === "contact")
     return (
       <div className="page-shell narrow">
@@ -315,8 +237,25 @@ export default function UtilityPage({ page }: { page: string }) {
           Questions about a pair, your fit, or your next step? Tell us what’s on
           your mind.
         </p>
+        <div className="contact-cards">
+          <a href={`tel:${contact.internationalPhone}`}>
+            <Phone size={23} />
+            <span>Give us a call</span>
+            <b>{contact.phone}</b>
+          </a>
+          <div>
+            <MapPin size={23} />
+            <span>Our home base</span>
+            <b>{contact.location}</b>
+          </div>
+        </div>
+        <div className="contact-social">
+          <h2>Find us on your feed.</h2>
+          <SocialLinks />
+        </div>
         <div className="notice">
-          Demo contact form. Messages are not sent to a support team.
+          The phone and social links connect to the details you provided. This
+          assignment form is a demo and does not send messages.
         </div>
         <form
           className="form"
@@ -363,25 +302,26 @@ export default function UtilityPage({ page }: { page: string }) {
               Great footwear.
             </h1>
             <p className="lead">
-              KIKA Footwear is your destination for discovering shoes from a
-              variety of brands and styles.
+              Lagos roots. Global taste. A footwear edit made for every side of
+              you.
             </p>
             <p>
-              We’re an independent online retailer. We bring together footwear
-              from established brands, helping you find a pair that suits your
-              style, your plans, and your everyday life.
+              KIKA is an independent online footwear retailer based in Lagos,
+              Nigeria. Our original-brand edit celebrates Nike, Adidas, PUMA,
+              Timberland and Dr. Martens, alongside an affordable
+              independent-label collection.
             </p>
             <p>
-              From statement heels to everyday sneakers, our edit celebrates
-              personal expression. We don’t manufacture shoes — we help you
-              discover them.
+              From student-friendly campus pairs to sharp 9–5 loafers and smart
+              flats, great style should feel like you. We curate shoes from
+              other brands — we don’t manufacture them. Keep It Klassic Always.
             </p>
             <Link href="/shop" className="button dark">
               Find your next favourite <ArrowRight size={18} />
             </Link>
           </div>
           <Photograph
-            src={photo("photo-1549298916-b41d501d3772", 1000)}
+            src="/products/white-sneakers.jpg"
             alt="Footwear selected for everyday style"
           />
         </div>
@@ -416,14 +356,18 @@ export default function UtilityPage({ page }: { page: string }) {
               "Yes. Tap the heart on any product. Your wishlist and cart are saved in this browser.",
             ],
             [
+              "Are these prices live offers?",
+              "No. Original-brand prices are indicative estimates for new stock, not verified supplier quotes. Campus products are independent-label budget alternatives, not branded replicas. Model imagery and stock are illustrative until confirmed.",
+            ],
+            [
               "Are accounts secure?",
-              "The current account flow creates a local demo profile. It does not verify identity. Secure login will require an authentication backend.",
+              "Sign-up and password login work locally in the browser where you create your assignment account. Passwords are salted and hashed, but this is not secure backend authentication and does not sync between devices. Use a demo password only.",
             ],
           ]
         : [
             [
               "Delivery options",
-              "Illustrative policy: standard delivery costs $10, with free delivery for orders of $150 or more. Shipping costs use USD throughout the demo.",
+              "Illustrative Lagos delivery: ₦3,500, with free demo delivery from ₦200,000. All prices are in Nigerian naira. Actual delivery rates require fulfilment confirmation.",
             ],
             [
               "Delivery times",
@@ -434,8 +378,8 @@ export default function UtilityPage({ page }: { page: string }) {
               "Proposed policy: returns within 30 days for unworn footwear in original packaging. This policy must be confirmed before commercial launch.",
             ],
             [
-              "International shipping",
-              "Available countries and regional delivery rates will be confirmed when fulfilment is integrated.",
+              "Shipping outside Lagos",
+              "Other Nigerian destinations will need a confirmed courier quote before commercial launch. International shipping is not configured.",
             ],
             [
               "Need a hand?",

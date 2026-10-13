@@ -1,19 +1,34 @@
 "use client";
-
-import { ImgHTMLAttributes, useEffect, useState } from "react";
-
-/** Keep a local illustration visible until remote photography is available. */
-export default function Photograph(props: ImgHTMLAttributes<HTMLImageElement>) {
-  const [loadedSource, setLoadedSource] = useState<string>();
-  useEffect(() => {
-    if (!props.src || typeof props.src !== "string") return;
-    let active = true;
-    const image = new window.Image();
-    image.onload = () => {
-      if (active) setLoadedSource(image.src);
-    };
-    image.src = props.src;
-    return () => { active = false; };
-  }, [props.src]);
-  return <img {...props} src={loadedSource || "/footwear-fallback.svg"} alt={loadedSource ? props.alt : "Illustrated footwear — demo image"} />;
+import Image from "next/image";
+import { useEffect, useState } from "react";
+type PhotographProps = {
+  src: string;
+  alt: string;
+  className?: string;
+  loading?: "eager" | "lazy";
+  sizes?: string;
+};
+export default function Photograph({
+  src,
+  alt,
+  className,
+  loading,
+  sizes,
+}: PhotographProps) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [src]);
+  return (
+    <Image
+      src={failed ? "/footwear-fallback.svg" : src}
+      alt={failed ? "Footwear illustration — image unavailable" : alt}
+      className={className}
+      width={1000}
+      height={1000}
+      sizes={sizes || "(max-width: 600px) 50vw, (max-width: 900px) 40vw, 500px"}
+      loading={loading}
+      quality={85}
+      data-cutout={src.endsWith(".png") ? "true" : undefined}
+      onError={() => setFailed(true)}
+    />
+  );
 }

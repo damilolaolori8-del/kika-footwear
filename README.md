@@ -1,17 +1,17 @@
 # KIKA Footwear
 
-Responsive multi-brand footwear storefront built with Next.js 15, TypeScript, Tailwind CSS 4, and Lucide icons.
+A blue-and-white footwear retail assignment built with Next.js 15, TypeScript, Tailwind CSS 4, Manrope, Space Grotesk and Lucide icons. Brand identity: **Keep It Klassic Always**. Based in Lagos, Nigeria.
 
-## Run locally
+## Development
 
-Requires Node.js 20.9+ and npm.
+Requires Node.js 20.9+ and npm. In the project directory:
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Run these commands in the project folder on the same computer as your browser, then open http://localhost:3000. Keep the terminal running. `localhost` always refers to your own computer; starting the server in a cloud workspace does not make it accessible at your computer’s localhost address. The cloud onboarding screen does not provide a browser preview. Other hosting tools may provide forwarded ports or deployment URLs. The server binds to 0.0.0.0.
+Open http://localhost:3000 on the computer running the server. Keep the terminal open. `localhost` on your computer does not reach a cloud server. The cloud onboarding screen does not provide a browser preview. Share the production Vercel URL to let others view the assignment.
 
 ```bash
 npm run typecheck
@@ -19,12 +19,43 @@ npm run build
 npm start
 ```
 
-## Features
+## Browser tests
 
-Homepage, category browsing, shop search/filter/sort, product pages with EU size selection, browser-persistent cart and wishlist, simulated checkout, demo sign-up/login/account, About, Contact, FAQs, and shipping information.
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
 
-## Demo boundaries
+If Chromium is already installed in a restricted cloud workspace, use its binary:
 
-No real payments, identity verification, inventory, fulfilment, emails, or backend persistence. Account profiles, cart and wishlist are stored in localStorage in the current browser. No passwords or card details are requested. Checkout delivery fields are not transmitted or retained. Contact messages are validated locally only. Catalogue brands, names, prices, sizes and policies are illustrative and need supplier/legal verification before commercial launch. USD is used throughout.
+```bash
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
+```
 
-Product and editorial photography is served from Unsplash and requires internet access to `images.unsplash.com`. A local footwear illustration is displayed until photography loads, so restricted networks do not show broken images; illustrative photos may not depict the named model. For production, replace with licensed, verified product assets. Real commerce requires payment-provider integration, a secure authentication backend, trusted server-side pricing and inventory, order storage, transactional email, and confirmed policies.
+The suite checks collection/search/price filters, size validation, persistent cart and wishlist, NGN checkout totals, demo registration and login, duplicate email and incorrect password handling, supplied contact links, image responses and mobile layouts at 320px and 390px.
+
+## What works
+
+- 20 product pages with EU size selection and descriptions.
+- Original-brand icon edit, campus collection (₦25,000–₦55,000), and a 9–5 collection including flats, loafers and unisex smart shoes.
+- Search, collection/category filters, price range, sorting, responsive navigation.
+- Browser-persistent cart and wishlist; simulated checkout with NGN totals.
+- Demo email/password registration, sign-in, sign-out, duplicate email checks and account page.
+- TikTok, Instagram, X and YouTube links provided by the owner; click-to-call **09066400635** and **Lagos, Nigeria** contact information.
+
+## Assignment boundaries
+
+No real payments, identity verification, live stock, fulfilment, email sending or backend persistence. Demo accounts work only in the browser where they were created. Passwords are salted and hashed using browser Web Crypto PBKDF2, but localStorage is not a secure authentication backend. Users are asked to use a demo password, not a password used elsewhere. Profiles/sessions/cart/wishlist can be modified by browser users and must never authorize real orders or access to private data. Clearing browser data removes demo accounts. Delivery fields are not transmitted or retained; contact forms validate locally only.
+
+All prices are in NGN. Branded prices are **indicative estimates for new original stock**, not live market research or verified supplier quotes. The campus collection contains illustrative independent-label alternatives, not branded replicas. The retailer's original-brand positioning is the intended business concept; supplier authenticity and stock are not verified by this assignment. Materials, availability, delivery rates and policies need confirmation before commercial launch. Illustrative Lagos shipping is ₦3,500, free from ₦200,000.
+
+## Edit content
+
+- `lib/products.ts`: catalogue, prices, sizes, category/collection membership, image references and image notes.
+- `lib/contact.ts`: phone, location and social links.
+- `public/brand/kika-logo.png`: new generated logo concept.
+- `public/products/`: locally served product/reference imagery; Next.js optimises these assets for browsers.
+- `app/globals.css`: cobalt blue, navy and white visual identity and responsive styling.
+- `IMAGE_SOURCES.md`: photography/source notes. Some assets illustrate a silhouette in another colourway or are generated concepts; product pages disclose this. These are not evidence of actual stock or authenticity.
+
+No environment variables are needed for the assignment. GitHub pushes to `main` normally trigger Vercel's connected production deployment. Real commerce needs secure server authentication, provider payments, server-validated prices/inventory, order persistence and confirmed policies.

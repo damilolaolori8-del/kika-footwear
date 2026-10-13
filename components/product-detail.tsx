@@ -3,7 +3,13 @@ import Photograph from "@/components/photograph";
 import Link from "next/link";
 import { useState } from "react";
 import { Heart, ArrowRight, Truck, RotateCcw } from "lucide-react";
-import { Product, products, photo, money } from "@/lib/products";
+import {
+  Product,
+  products,
+  photo,
+  money,
+  FREE_SHIPPING_MINIMUM,
+} from "@/lib/products";
 import { useStore, ProductCard } from "./store";
 export default function ProductDetail({ product: p }: { product: Product }) {
   const { add, wish, wishlist } = useStore();
@@ -16,16 +22,20 @@ export default function ProductDetail({ product: p }: { product: Product }) {
       </div>
       <div className="detail-grid">
         <div className="detail-image">
-          <Photograph src={photo(p.image, 1200)} alt={`${p.brand} ${p.name}`} />
+          <Photograph
+            src={photo(p.image, 1200)}
+            alt={`${p.brand} ${p.name} — reference image`}
+          />
+          <p className="detail-image-note">{p.imageNote}</p>
         </div>
         <div className="detail-copy">
           <span className="eyebrow">{p.brand}</span>
           <h1>{p.name}</h1>
           <p className="detail-price">{money(p.price)}</p>
-          <p className="lead">
-            An effortless addition to your rotation. Discover a versatile style
-            from {p.brand}, selected by KIKA for your everyday plans.
+          <p className="price-caption">
+            Indicative pricing · Assignment catalogue
           </p>
+          <p className="lead">{p.description}</p>
           <p>
             Colour: <b>{p.color}</b>
           </p>
@@ -34,20 +44,18 @@ export default function ProductDetail({ product: p }: { product: Product }) {
             <span>Standard EU sizing</span>
           </div>
           <div className="sizes">
-            {["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"].map(
-              (s) => (
-                <button
-                  className={size === s ? "active" : ""}
-                  key={s}
-                  onClick={() => {
-                    setSize(s);
-                    setMessage("");
-                  }}
-                >
-                  {s}
-                </button>
-              ),
-            )}
+            {p.sizes.map((s) => (
+              <button
+                className={size === s ? "active" : ""}
+                key={s}
+                onClick={() => {
+                  setSize(s);
+                  setMessage("");
+                }}
+              >
+                {s}
+              </button>
+            ))}
           </div>
           <div className="add-row">
             <button
@@ -82,19 +90,20 @@ export default function ProductDetail({ product: p }: { product: Product }) {
           </p>
           <div className="detail-service">
             <p>
-              <Truck size={18} /> Free shipping on orders $150+
+              <Truck size={18} /> Demo free shipping from{" "}
+              {money(FREE_SHIPPING_MINIMUM)}
             </p>
             <p>
-              <RotateCcw size={18} /> 30-day returns · Unworn, original
+              <RotateCcw size={18} /> Proposed 30-day returns · Unworn, original
               packaging
             </p>
           </div>
           <details open>
             <summary>About this pair</summary>
             <p>
-              {p.gender}’s {p.category.toLowerCase()} in {p.color}. Listed
-              products, prices and availability are illustrative demo catalogue
-              data and require supplier verification before launch.
+              {p.gender} {p.category.toLowerCase()} in {p.color}. {p.material}.
+              Listed products, prices and availability are illustrative demo
+              catalogue data and require supplier verification before launch.
             </p>
           </details>
           <details>
