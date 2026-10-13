@@ -134,7 +134,7 @@ test("demo registration validates confirmation, stores hashes, and rejects incor
   );
 });
 
-test("contact page exposes the supplied phone and four correct social profiles", async ({
+test("contact page exposes the supplied phone and five correct social profiles", async ({
   page,
 }) => {
   await page.goto("/contact");
@@ -147,6 +147,7 @@ test("contact page exposes the supplied phone and four correct social profiles",
     Instagram: "https://www.instagram.com/kikaoffical6/",
     X: "https://x.com/dotunolori_91",
     YouTube: "https://www.youtube.com/@kikaofficial-p5n",
+    Facebook: "https://www.facebook.com/share/1Mdoe2mqMZ/?mibextid=wwXIfr",
   };
   for (const [name, url] of Object.entries(links))
     await expect(

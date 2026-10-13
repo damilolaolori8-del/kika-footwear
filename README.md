@@ -41,7 +41,7 @@ The suite checks collection/search/price filters, size validation, persistent ca
 - Search, collection/category filters, price range, sorting, responsive navigation.
 - Browser-persistent cart and wishlist; simulated checkout with NGN totals.
 - Demo email/password registration, sign-in, sign-out, duplicate email checks and account page.
-- TikTok, Instagram, X and YouTube links provided by the owner; click-to-call **09066400635** and **Lagos, Nigeria** contact information.
+- TikTok, Instagram, X, YouTube and Facebook links provided by the owner; click-to-call **09066400635** and **Lagos, Nigeria** contact information.
 
 ## Assignment boundaries
 

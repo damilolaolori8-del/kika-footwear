@@ -20,4 +20,9 @@ export const socials = [
     handle: "@kikaofficial-p5n",
     url: "https://www.youtube.com/@kikaofficial-p5n",
   },
+  {
+    name: "Facebook",
+    handle: "Facebook page",
+    url: "https://www.facebook.com/share/1Mdoe2mqMZ/?mibextid=wwXIfr",
+  },
 ];
